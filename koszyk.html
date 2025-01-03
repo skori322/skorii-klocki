@@ -1,0 +1,267 @@
+<<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Twój Koszyk</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(120deg, #f5f7fa, #c3cfe2);
+            color: #333;
+        }
+        .container {
+            max-width: 900px;
+            margin: 50px auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            padding: 20px;
+        }
+        .cart-header {
+            background: #4CAF50;
+            color: white;
+            padding: 20px;
+            font-size: 2em;
+            font-weight: 700;
+            text-align: center;
+            border-radius: 10px 10px 0 0;
+        }
+        .cart-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 20px;
+            border-bottom: 1px solid #ddd;
+            transition: background 0.3s ease;
+        }
+        .cart-item:hover {
+            background: #f9f9f9;
+        }
+        .cart-item img {
+            width: 90px;
+            height: 90px;
+            border-radius: 10px;
+            object-fit: cover;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        .cart-item .details {
+            flex-grow: 1;
+            margin-left: 20px;
+        }
+        .cart-item .details span {
+            display: block;
+            font-size: 1.1em;
+            font-weight: 500;
+        }
+        .cart-item .price {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #4CAF50;
+        }
+        .cart-item .remove-btn {
+            background: none;
+            border: none;
+            color: #e74c3c;
+            font-size: 1.5em;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+        .cart-item .remove-btn:hover {
+            color: #c0392b;
+        }
+        .summary {
+            padding: 20px;
+            text-align: right;
+            font-size: 1.2em;
+            font-weight: 500;
+            background: #f7f9fc;
+            margin-top: 20px;
+            border-radius: 10px;
+        }
+        .summary p {
+            margin: 10px 0;
+        }
+        .discount-section {
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            margin-top: 20px;
+        }
+        .discount-section input {
+            margin-bottom: 10px;
+        }
+        .btn-primary, .btn-success, .btn-danger {
+            width: 100%;
+            padding: 12px;
+            font-size: 1.1em;
+            font-weight: 600;
+            border-radius: 50px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .btn-primary:hover, .btn-success:hover, .btn-danger:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        /* Style for back button */
+        .back-button {
+            font-size: 1.5em;
+            color: black; /* Zmieniony kolor tekstu na czarny */
+            text-decoration: none;
+            margin-bottom: 20px;
+            display: block;
+            text-align: left; /* Wyrównanie do lewej */
+            margin-top: 20px;
+            margin-left: 20px; /* Wyrównanie do lewej krawędzi */
+        }
+        .back-button:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Back button added here -->
+<a href="sklep.html" class="back-button">&larr; Wróć do sklepu</a>
+
+<div class="container">
+    <div class="cart-header">Twój Koszyk</div>
+
+    <div id="cart-items"></div>
+
+    <div class="summary">
+        <p>Łączna cena: <strong><span id="totalPrice">0</span> zł</strong></p>
+        <p id="discountText" class="discount-text" style="display:none;">- 10% Rabat</p>
+        <p id="discountPriceText" class="discount-price" style="display:none;">Cena po rabacie: <strong><span id="discountPrice">0</span> zł</strong></p>
+    </div>
+
+    <!-- Sekcja kodu rabatowego -->
+    <div class="discount-section">
+        <label for="discountCode" class="form-label">Dodaj kod rabatowy:</label>
+        <input type="text" id="discountCode" class="form-control" placeholder="Wpisz kod">
+        <button class="btn btn-primary" onclick="applyDiscount()">Zastosuj kod rabatowy</button>
+    </div>
+
+    <!-- Sekcja adresu e-mail -->
+    <div class="discount-section">
+        <label for="email" class="form-label">Adres e-mail:</label>
+        <input type="email" id="email" class="form-control" placeholder="Wpisz swój adres e-mail">
+        <div id="emailError" style="color: red; display: none;">Adres email nie został podany</div>
+    </div>
+
+    <div class="p-3">
+        <button class="btn btn-success" onclick="checkoutCart()">Wyślij email</button>
+    </div>
+
+</div>
+
+<script>
+    let cart = JSON.parse(localStorage.getItem('cart')) || [];
+    let totalPrice = 0;
+    let discountApplied = false;
+
+    function loadCart() {
+        const cartItems = document.getElementById('cart-items');
+        cartItems.innerHTML = '';
+        totalPrice = 0;
+
+        cart.forEach((item, index) => {
+            cartItems.innerHTML += `
+                <div class="cart-item">
+                    <img src="${item.logo}" alt="Logo produktu">
+                    <div class="details">
+                        <span>${item.product}</span>
+                    </div>
+                    <span class="price">${item.price} zł</span>
+                    <button class="remove-btn" onclick="removeFromCart(${index})">&times;</button>
+                </div>
+            `;
+            totalPrice += item.price;
+        });
+
+        document.getElementById('totalPrice').textContent = totalPrice.toFixed(2);
+        if (discountApplied) {
+            const discountedPrice = totalPrice - (totalPrice * 0.1);
+            document.getElementById('discountText').style.display = 'block';
+            document.getElementById('discountPriceText').style.display = 'block';
+            document.getElementById('discountPrice').textContent = discountedPrice.toFixed(2);
+        }
+    }
+
+    function removeFromCart(index) {
+        totalPrice -= cart[index].price;
+        cart.splice(index, 1);
+        localStorage.setItem('cart', JSON.stringify(cart));
+        loadCart();
+    }
+
+    function applyDiscount() {
+        const discountCode = document.getElementById('discountCode').value;
+
+        if (discountCode === "xdlego") {
+            discountApplied = true;
+            loadCart();
+        } else {
+            discountApplied = false;
+            loadCart();
+        }
+    }
+
+    function checkoutCart() {
+        const email = document.getElementById('email').value;
+        const discountCode = document.getElementById('discountCode').value;
+        const emailError = document.getElementById('emailError');
+
+        if (!email) {
+            emailError.style.display = 'block';
+            return;
+        } else {
+            emailError.style.display = 'none';
+        }
+
+        let finalPrice = totalPrice;
+        let discountMessage = '';
+
+        if (discountCode === "xdlego") {
+            discountMessage = "Kod rabatowy: xdlego";
+            finalPrice = totalPrice - (totalPrice * 0.1);
+        } else {
+            discountMessage = "Brak rabatu";
+        }
+
+        // Send email with Formspree
+        sendEmail(finalPrice, discountMessage, email);
+    }
+
+    function sendEmail(finalPrice, discountMessage, email) {
+        const formData = new FormData();
+        formData.append('email', email);
+        formData.append('finalPrice', finalPrice);
+        formData.append('discountMessage', discountMessage);
+        formData.append('products', cart.map(item => item.product).join(', '));
+
+        fetch("https://formspree.io/f/xbllpgqa", {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log("Wiadomość wysłana", data);
+            alert("Koszyk wysłany na Twój e-mail!");
+        })
+        .catch(error => {
+            console.error("Błąd wysyłania e-maila", error);
+            alert("mail wysłany");
+        });
+    }
+
+    loadCart();
+</script>
+
+</body>
+</html>
+
+</html>

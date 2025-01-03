@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mystery Box Lego Shop - Najlepszy sklep online</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Style ogólne */
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(to right, #e6f2ff, #f2f9ff);
+            color: #333;
+        }
+        header {
+            background: url('Polish_20250102_223934668.jpg') no-repeat center center;
+            background-size: cover;
+            padding: 50px 20px;
+            text-align: center;
+            color: white;
+        }
+        .hero-content {
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            border-radius: 10px;
+        }
+        .hero-content h1 {
+            font-size: 3rem;
+            font-weight: 700;
+        }
+        .hero-content h2 {
+            font-size: 1.5rem;
+            font-weight: 400;
+        }
+        .navbar {
+            background: #007bff;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .navbar .nav-link {
+            color: white;
+            font-weight: 600;
+        }
+        .navbar .nav-link:hover {
+            color: #ffcc00;
+        }
+        .product {
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 15px;
+            background-color: white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease;
+        }
+        .product:hover {
+            transform: scale(1.05);
+        }
+        .product img {
+            max-height: 200px;
+            object-fit: cover;
+        }
+        footer {
+            background: #343a40;
+            color: white;
+            padding: 20px;
+        }
+        footer .footer-link {
+            color: #ffcc00;
+            text-decoration: none;
+        }
+        footer .footer-link:hover {
+            text-decoration: underline;
+        }
+        /* Koszyk w prawym górnym rogu */
+        #cart-icon {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 24px;
+            background-color: #ffcc00;
+            color: white;
+            padding: 10px;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        #cart-icon:hover {
+            background-color: #e6a800;
+        }
+        /* Okno koszyka */
+        #cart-popup {
+            position: absolute;
+            top: 60px;
+            right: 20px;
+            width: 300px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 10px;
+            display: none;
+            max-height: 400px;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+        #cart-popup a {
+            color: #fff;
+            text-decoration: none;
+            background-color: #343a40;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            display: block;
+            margin-top: 15px;
+        }
+        #cart-popup a:hover {
+            background-color: #5a6268;
+        }
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+        .cart-item img {
+            max-width: 50px;
+            margin-right: 10px;
+        }
+        .cart-item button {
+            background: none;
+            border: none;
+            color: red;
+            font-size: 18px;
+            cursor: pointer;
+        }
+        .cart-item button:hover {
+            color: #ff0000;
+        }
+
+        /* Styl suwaka */
+        #customPrice {
+            width: 100%;
+            height: 15px;
+            background: #ddd;
+            border-radius: 5px;
+            -webkit-appearance: none;
+            appearance: none;
+            outline: none;
+            transition: background-color 0.3s ease;
+        }
+        #customPrice::-webkit-slider-thumb {
+            width: 25px;
+            height: 25px;
+            background: #007bff;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        #customPrice::-moz-range-thumb {
+            width: 25px;
+            height: 25px;
+            background: #007bff;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        /* Pole do wpisania ceny */
+        #customPriceInput {
+            width: 100px;
+            padding: 5px;
+            margin-top: 10px;
+        }
+
+        /* Komunikat o błędzie */
+        .error-message {
+            color: red;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Koszyk w prawym górnym rogu -->
+<div id="cart-icon" onmouseover="showCartPopup()" onmouseout="startHideCartPopup()">
+    🛒 <span id="cart-count">0</span>
+</div>
+
+<!-- Okno z zawartością koszyka -->
+<div id="cart-popup">
+    <h5>Produkty w koszyku:</h5>
+    <ul id="cart-items">
+        <!-- Produkty w koszyku -->
+    </ul>
+    <a href="koszyk.html">Przejdź do koszyka</a>
+</div>
+
+<header>
+    <div class="hero-content">
+        <!-- Dodanie logo na górze strony -->
+        <img src="Polish_20241226_104528701-removebg-preview.png" alt="Logo" class="img-fluid" style="max-width: 200px; margin: 0 auto; display: block; padding-bottom: 20px;">
+        <h1>Odkryj Radość Tajemnic</h1>
+        <h2>Ekskluzywne pudełka Mystery Box Lego</h2>
+    </div>
+</header>
+
+<main class="container my-5">
+    <section id="products">
+        <div class="row">
+            <!-- Produkt 1 -->
+            <div class="col-md-3 mb-4">
+                <div class="product text-center">
+                    <img src="Polish_20241212_165344685.jpg" alt="Mystery Box Mały 30 zł" class="img-fluid">
+                    <h3>Mystery Box Mały - 30 zł</h3>
+                    <p>Twój mały zestaw Lego za 30 zł</p>
+                    <button class="btn btn-primary w-100" onclick="addToCart('Mystery Box Mały - 30 zł', 30, 'Polish_20241212_165344685.jpg')">Dodaj do koszyka</button>
+                </div>
+            </div>
+            <!-- Produkt 2 -->
+            <div class="col-md-3 mb-4">
+                <div class="product text-center">
+                    <img src="Polish_20241212_165344685.jpg" alt="Mystery Box Średni 50 zł" class="img-fluid">
+                    <h3>Mystery Box Średni - 50 zł</h3>
+                    <p>Twój średni zestaw Lego za 50 zł</p>
+                    <button class="btn btn-primary w-100" onclick="addToCart('Mystery Box Średni - 50 zł', 50, 'Polish_20241212_165344685.jpg')">Dodaj do koszyka</button>
+                </div>
+            </div>
+            <!-- Produkt 3 -->
+            <div class="col-md-3 mb-4">
+                <div class="product text-center">
+                    <img src="Polish_20241212_165344685.jpg" alt="Mystery Box Duży 100 zł" class="img-fluid">
+                    <h3>Mystery Box Duży - 100 zł</h3>
+                    <p>Twój duży zestaw Lego za 100 zł</p>
+                    <button class="btn btn-primary w-100" onclick="addToCart('Mystery Box Duży - 100 zł', 100, 'Polish_20241212_165344685.jpg')">Dodaj do koszyka</button>
+                </div>
+            </div>
+            <!-- Produkt 4 -->
+            <div class="col-md-3 mb-4">
+                <div class="product text-center">
+                    <img src="Polish_20241212_165344685.jpg" alt="Mystery Box Max 200 zł" class="img-fluid">
+                    <h3>Mystery Box Max - 200 zł</h3>
+                    <p>Twój maksymalny zestaw Lego za 200 zł</p>
+                    <button class="btn btn-primary w-100" onclick="addToCart('Mystery Box Max - 200 zł', 200, 'Polish_20241212_165344685.jpg')">Dodaj do koszyka</button>
+                </div>
+            </div>
+        </div>
+        <!-- Custom Mystery Box -->
+        <div class="row my-5">
+            <div class="col-12">
+                <div class="product text-center">
+                    <img src="Polish_20241212_165344685.jpg" alt="Custom Mystery Box" class="img-fluid">
+                    <h3>Custom Mystery Box</h3>
+                    <p>Wybierz kwotę swojego pudełka:</p>
+                    <input type="range" id="customPrice" min="30" max="500" step="1" value="30" oninput="updateCustomPrice()">
+                    <br>
+                    <input type="number" id="customPriceInput" value="30" min="30" max="500" onchange="updateCustomPriceFromInput()">
+                    <p id="customPriceDisplay">Cena: 30 zł</p>
+                    <p id="error-message" class="error-message"></p> <!-- Komunikat o błędzie -->
+                    <button class="btn btn-success w-100" onclick="addCustomBox()">Dodaj Custom Box do koszyka</button>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<footer class="text-center">
+    <p>&copy; 2025 Mystery Box Lego Shop. Wszystkie prawa zastrzeżone.</p>
+</footer>
+
+<script>
+    let cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+    function addToCart(product, price, logo) {
+        cart.push({ product, price, logo });
+        localStorage.setItem('cart', JSON.stringify(cart));
+        updateCartCount();
+    }
+
+    function updateCartCount() {
+        const cartCount = cart.length;
+        document.getElementById('cart-count').textContent = cartCount;
+        updateCartPopup();
+    }
+
+    function updateCartPopup() {
+        const cartItems = document.getElementById('cart-items');
+        cartItems.innerHTML = ''; // Wyczyść obecne produkty
+        cart.forEach((item, index) => {
+            const li = document.createElement('li');
+            li.classList.add('cart-item');
+            li.innerHTML = `
+                <img src="${item.logo}" alt="${item.product}" />
+                <span>${item.product}</span>
+                <button onclick="removeFromCart(${index})">Usuń</button>
+            `;
+            cartItems.appendChild(li);
+        });
+    }
+
+    function removeFromCart(index) {
+        cart.splice(index, 1);
+        localStorage.setItem('cart', JSON.stringify(cart));
+        updateCartCount();
+    }
+
+    function showCartPopup() {
+        document.getElementById('cart-popup').style.display = 'block';
+        clearTimeout(cartPopupTimeout);
+    }
+
+    let cartPopupTimeout;
+
+    function startHideCartPopup() {
+        cartPopupTimeout = setTimeout(() => {
+            document.getElementById('cart-popup').style.display = 'none';
+        }, 5000);
+    }
+
+    function addCustomBox() {
+        const customPrice = document.getElementById('customPrice').value;
+        const productName = "Custom Mystery Box - " + customPrice + " zł";
+        addToCart(productName, parseInt(customPrice), 'Polish_20241212_165344685.jpg');
+    }
+
+    function updateCustomPrice() {
+        const price = document.getElementById('customPrice').value;
+        document.getElementById('customPriceInput').value = price;
+        document.getElementById('customPriceDisplay').textContent = 'Cena: ' + price + ' zł';
+    }
+
+    function updateCustomPriceFromInput() {
+        const price = document.getElementById('customPriceInput').value;
+        if (price < 30 || price > 500) {
+            document.getElementById('error-message').textContent = 'Cena musi być między 30 a 500 zł!';
+        } else {
+            document.getElementById('error-message').textContent = '';
+            document.getElementById('customPrice').value = price;
+            document.getElementById('customPriceDisplay').textContent = 'Cena: ' + price + ' zł';
+        }
+    }
+
+    // Inicjalizacja
+    updateCartCount();
+</script>
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
