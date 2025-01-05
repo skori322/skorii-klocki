@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://skori322.github.io/skorii-klocki/sitemap.xml
